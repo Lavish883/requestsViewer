@@ -1,6 +1,38 @@
 var urlQuery = new URLSearchParams(window.location.search);
 var vidURL = urlQuery.get('url');
 
+var subtitles = JSON.parse(urlQuery.get('subtitles'));
+var actualSubArry = [];
+var subOptionsArry = [{
+    html: 'Display',
+    tooltip: 'Show',
+    switch: true,
+    onSwitch: function (item) {
+        item.tooltip = item.switch ? 'Hide' : 'Show';
+        art.subtitle.show = !item.switch;
+        return !item.switch;
+    },
+}];
+// "https://cc.2cdns.com/13/ec/13eca2fcf87bedc8c2034803e92e4835/kor-21.vtt"
+// make it so only kor part is that part of the url
+
+subtitles = subtitles.map(subLink => {
+    var sub = subLink.split('/');
+    var subName = sub[sub.length - 1].split('-')[0];
+    
+    actualSubArry.push({
+        name: subName,
+        url: subLink
+    });
+
+    subOptionsArry.push({
+        html: subName,
+        name: subName
+    });
+});
+
+console.log(actualSubArry);
+
 var art = new Artplayer({
     container: '.artplayer-app',
     url: vidURL,
@@ -34,14 +66,17 @@ var art = new Artplayer({
             title: 'Quality',
             auto: 'Auto',
         }),
-
         artplayerPluginMultipleSubtitles({
             subtitles: [
-                {
-                    name: 'English',
-                    url: 'https://cc.2cdns.com/8b/dd/8bdd25784240a2bdcf83c84ab9d739ac/eng-2.vtt'
-                }
-            ]
+				{
+					name: 'chinese',
+					url: "https://cc.2cdns.com/2e/d5/2ed5da4eec97702ce20a05f821182e4d/eng-2.vtt",
+				},
+				{
+					name: 'japanese',
+					url: "https://cc.2cdns.com/2e/d5/2ed5da4eec97702ce20a05f821182e4d/eng-2.vtt",
+				}
+			],
         })
     ],
     customType: {
@@ -59,5 +94,5 @@ var art = new Artplayer({
                 art.notice.show = 'Unsupported playback format: m3u8';
             }
         }
-    },
+    }
 });
