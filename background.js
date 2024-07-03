@@ -9,6 +9,7 @@ function setTimeoutForPage(time = 500) {
     }
 
     openPageTimeout = setTimeout(() => {
+        if (infoForExtension.url == "") return;
         chrome.tabs.create({ url: `test.html?url=${infoForExtension.url}&subtitles=${JSON.stringify(infoForExtension.subtitles)}` });
         openPageTimeout = undefined;
         infoForExtension = undefined;
@@ -31,7 +32,9 @@ chrome.webRequest.onBeforeRequest.addListener(
                 infoForExtension.subtitles.push(details.url);
             }
 
-            if (details.url.includes("playlist.m3u8")) {
+            console.log(details.url);
+
+            if (details.url.includes(".m3u8") && !details.url.includes('1080') && !details.url.includes('720') && !details.url.includes('480') && !details.url.includes('360') && infoForExtension.url == "") {
                 infoForExtension.url = details.url;
             }
 
@@ -41,5 +44,20 @@ chrome.webRequest.onBeforeRequest.addListener(
         }
     },
     { urls: ["<all_urls>"] },
-    ["requestBody"]
+    ["requestBody", "extraHeaders"]
 );
+
+chrome.runtime.onMessage.addListener((req, sender, sendResp) => {
+    console.log(req);
+    sendResp({ message: "received" });
+})
+
+
+chrome.action.onClicked.addListener((tab) => {
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        function: () => {
+            console.log("Hello from your Chrome extension!");
+        }
+    });
+});
